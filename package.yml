@@ -1,0 +1,28 @@
+package: massif_dnd_sorter
+version: 0.2.1
+author: Yves Torres
+supportpage: massif.ch
+
+config:
+  rex_yf_project:
+    imgCol: "preview_img"
+    defaultCols: 4
+    maxCols: 8
+    colSizeStep: 2
+    labelCol: "name"
+    heading: "Projekte anordnen"
+    sortMedia:
+      table_name: rex_yf_project_media
+      relation_column: "id_project"
+      imgCol: "images"
+      defaultCols: 6
+      maxCols: 12
+      colSizeStep: 6
+      heading: "Medien anordnen"
+
+requires:
+  php:
+    version: ">=8.1"
+  redaxo: "^5.13"
+  packages:
+    yform: ">=3.2,<5.0.0-dev"
