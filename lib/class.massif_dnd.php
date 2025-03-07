@@ -96,7 +96,7 @@ class DndSorter
     });
   }
 
-  public function getValue(string $value): array|null
+  public function getValue(string $value): array|string|null
   {
     if (!isset($this->{$value})) return null;
     return $this->{$value};
