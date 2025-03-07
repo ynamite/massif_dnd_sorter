@@ -29,17 +29,16 @@
       .thumbnail {
         position: relative;
         margin: 0;
+        aspect-ratio: auto;
       }
 
       .img-placeholder,
       .img-cell {
-        aspect-ratio: 4 / 3;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
+        max-width: none;
+      }
+      img {
+        width: 100%;
+        height: auto;
       }
 
       .img-placeholder {
