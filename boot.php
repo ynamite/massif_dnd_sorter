@@ -1,6 +1,13 @@
 <?php
 
-use Ynamite\DndSorter;
+namespace Ynamite\DndSorter;
+
+use rex;
+use rex_addon_interface;
+use rex_view;
+
+/** @var rex_addon_interface $this */
+
 
 \rex_fragment::addDirectory($this->getPath('fragments'));
 

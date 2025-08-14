@@ -1,6 +1,6 @@
 <?php
 
-namespace Ynamite;
+namespace Ynamite\DndSorter;
 
 use rex_fragment;
 use rex_sql;
