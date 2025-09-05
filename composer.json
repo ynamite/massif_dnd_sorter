@@ -1,0 +1,8 @@
+{
+  "name": "ynamite/massif-dnd-sorter",
+  "autoload": {
+    "psr-4": {
+      "Ynamite\\MassifDndSorter\\": "src/lib/"
+    }
+  }
+}
