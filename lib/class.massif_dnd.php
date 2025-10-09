@@ -144,6 +144,31 @@ class DndSorter
     return ['table_name' => $sql->getValue('table'), 'column' => $sql->getValue('field')];
   }
 
+  public static function sortDataByIds(array $data, string $ids): array
+  {
+    if ($ids && is_string($ids) && count($data)) {
+      $ids = array_map('trim', explode(',', $ids));
+      $sortedData = [];
+      foreach ($ids as $id) {
+        foreach ($data as $item) {
+          if ($item['id'] == $id) {
+            $sortedData[] = $item;
+            break;
+          }
+        }
+      }
+      // add any items that were not in $values at the start
+      foreach ($data as $item) {
+        if (!in_array($item, $sortedData, true)) {
+          $sortedData[] = $item;
+        }
+      }
+      $data = $sortedData;
+      return $data;
+    }
+    return $data;
+  }
+
   // public static function getSortMediaButton(int $data_id, string $table_name, bool $reloadWindowOnClose = false): string
   // {
   //   $mediaConfig = self::getMediaSortConfig($table_name);
