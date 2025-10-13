@@ -8,6 +8,8 @@ use rex_yform_manager_field;
 use rex_addon;
 use rex_extension;
 use rex_extension_point;
+use rex_yform_manager_collection;
+use rex_yform_manager_dataset;
 
 class DndSorter
 {
@@ -144,13 +146,19 @@ class DndSorter
     return ['table_name' => $sql->getValue('table'), 'column' => $sql->getValue('field')];
   }
 
-  public static function sortDataByIds(array $data, string $ids): array
+  public static function sortDataByIds(array|rex_yform_manager_collection $data, string $ids): array
   {
+    if ($data instanceof rex_yform_manager_collection) {
+      $data = $data->toArray();
+    }
     if ($ids && is_string($ids) && count($data)) {
       $ids = array_map('trim', explode(',', $ids));
       $sortedData = [];
       foreach ($ids as $id) {
         foreach ($data as $item) {
+          if ($item instanceof rex_yform_manager_dataset) {
+            $item = $item->getData();
+          }
           if ($item['id'] == $id) {
             $sortedData[] = $item;
             break;
@@ -159,6 +167,9 @@ class DndSorter
       }
       // add any items that were not in $values at the start
       foreach ($data as $item) {
+        if ($item instanceof rex_yform_manager_dataset) {
+          $item = $item->getData();
+        }
         if (!in_array($item, $sortedData, true)) {
           $sortedData[] = $item;
         }
