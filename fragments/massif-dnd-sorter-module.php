@@ -60,6 +60,11 @@ $data = DndSorter::sortDataByIds($data, $values);
             </div>
             <?= $img ?>
           </div>
+          <?php if ($item['description'] ?? false) { ?>
+            <div class="description">
+              <?= $item['description'] ?>
+            </div>
+          <?php } ?>
         </masonry-item>
       <?php } ?>
     </masonry-list>
