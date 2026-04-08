@@ -30,7 +30,7 @@ $data = DndSorter::sortDataByIds($data, $values);
         if ($item[$imgCol]) {
           $imgArray = explode(',', $item[$imgCol]);
           $filename = $imgArray[0];
-          $img = class_exists('Ynamite\Massif\Media\Image') ? Ynamite\Massif\Media\Image::get(src: $filename, loading: 'eager', maxWidth: 500) : '<img src="' . rex_url::media($filename) . '" />';
+          $img = class_exists('Ynamite\Massif\Media\Image') ? Ynamite\Massif\Media\Image::get(src: $filename, loading: 'lazy', maxWidth: 500) : '<img src="' . rex_url::media($filename) . '" />';
         } else {
           $img = '<div class="img-placeholder"></div>';
         }
@@ -88,6 +88,7 @@ $data = DndSorter::sortDataByIds($data, $values);
     grid-template-columns: repeat(var(--cols), 1fr);
     grid-auto-flow: dense;
     gap: var(--gap);
+    row-gap: 0;
     /* correct last item adding extra size when masonry is patched */
     margin-block-end: calc(var(--gap) * -1px);
 
@@ -110,65 +111,78 @@ $data = DndSorter::sortDataByIds($data, $values);
     return px
   }
   class MasonryList extends HTMLElement {
-    #patched = false
-    #observer = null
+    #patched = false;
+    #observer = null;
 
     get patched() {
-      return this.#patched
+      return this.#patched;
     }
 
     #layout = () => {
-      const rowGap = getCustomPropertyValue(this, '--gap')
-      this.style.setProperty('--masonry-list-row-gap', `${Math.round(rowGap)}`)
-    }
+      requestAnimationFrame(() => {
+        const rowGap = getCustomPropertyValue(this, "--gap");
+        this.style.setProperty("--masonry-list-row-gap", `${Math.round(rowGap)}`);
+      });
+    };
 
     connectedCallback() {
-      const style = getComputedStyle(this)
-      if (style.gridTemplateRows === 'masonry') return
-      this.#patched = true
+      if (CSS.supports("grid-template-rows", "masonry")) return;
+      this.#patched = true;
+      this.toggleAttribute("patched", true);
 
-      this.style.gridAutoRows = '0px'
-      this.style.setProperty('row-gap', '1px', 'important')
+      this.style.gridAutoRows = "0px";
+      this.style.setProperty("row-gap", "1px", "important");
 
-      this.#observer = new ResizeObserver(this.#layout)
-      this.#observer.observe(this)
-      this.#layout()
+      this.#observer = new ResizeObserver(this.#layout);
+      this.#observer.observe(this);
     }
 
     disconnectedCallback() {
-      this.#observer?.disconnect()
+      this.#observer?.disconnect();
     }
   }
 
   class MasonryItem extends HTMLElement {
-    #observer = null
+    #observer = null;
+    #frame = 0;
 
     #layout = () => {
-      const {
-        height
-      } = this.getBoundingClientRect()
-      this.style.gridRowEnd = `span calc(${Math.round(
-      height
-    )} + var(--masonry-list-row-gap))`
-    }
+      if (this.#frame) return;
+      this.#frame = requestAnimationFrame(() => {
+        this.#frame = 0;
+        const {
+          height
+        } = this.getBoundingClientRect();
+        this.style.gridRowEnd = `span calc(${Math.round(
+				height,
+			)} + var(--masonry-list-row-gap))`;
+      });
+    };
 
     connectedCallback() {
-      const masonry = this.closest('masonry-list')
-      if (!masonry?.patched) return
+      const masonry = this.closest("masonry-list");
+      if (!masonry) return;
+      customElements.upgrade(masonry);
+      if (!masonry?.patched) return;
 
-      this.#observer = new ResizeObserver(this.#layout)
-      this.#observer.observe(this)
-      this.#layout()
+      this.#observer = new ResizeObserver(this.#layout);
+      this.#observer.observe(this);
+      this.#layout();
     }
 
     disconnectedCallback() {
-      this.#observer?.disconnect()
+      if (this.#frame) cancelAnimationFrame(this.#frame);
+      this.#observer?.disconnect();
+      this.#observer = null;
+      this.#frame = 0;
     }
   }
 
-  if (typeof window !== 'undefined') {
-    customElements.define('masonry-list', MasonryList)
-    customElements.define('masonry-item', MasonryItem)
+  if (typeof window !== "undefined") {
+    if (!customElements.get("masonry-list"))
+      customElements.define("masonry-list", MasonryList);
+    if (!customElements.get("masonry-item"))
+      customElements.define("masonry-item", MasonryItem);
   }
 </script>
 <script>
