@@ -165,15 +165,29 @@ class DndSorter
           }
         }
       }
+
+      $unsortedData = [];
       // add any items that were not in $values at the start
       foreach ($data as $item) {
         if ($item instanceof rex_yform_manager_dataset) {
           $item = $item->getData();
         }
         if (!in_array($item, $sortedData, true)) {
-          $sortedData[] = $item;
+          $unsortedData[] = $item;
+          // // add item to the beginning of the sorted data array
+          // array_unshift($sortedData, $item);
+          // // dump($item);
+          // // $sortedData[] = $item;
         }
       }
+      // sort unsortedData by name or title field if it exists
+      usort($unsortedData, function ($a, $b) {
+        $fieldA = $a['name'] ?? ($a['title'] ?? '');
+        $fieldB = $b['name'] ?? ($b['title'] ?? '');
+        return strcasecmp($fieldA, $fieldB);
+      });
+      // prepend unsorted data to the sorted data array
+      $sortedData = array_merge($unsortedData, $sortedData);
       $data = $sortedData;
       return $data;
     }
